@@ -1,182 +1,217 @@
-```js
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
-const path = require("path");
 const crypto = require("crypto");
+const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
-
-// Conexiones temporales.
-// No se utiliza una base de datos.
 const conexiones = new Map();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-// Crear una conexión
-app.post("/api/conexiones", (req, res) => {
-    const { nombre, mensaje, url } = req.body;
+function generarCodigo() {
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
+}
 
-    if (!url || !/^https?:\/\//i.test(url)) {
-        return res.status(400).json({
-            error: "Introduce una URL válida que empiece por http:// o https://"
-        });
-    }
+function urlValida(valor) {
+  try {
+    const u = new URL(valor);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch (error) {
+    return false;
+  }
+}
 
-    const codigo = crypto
-        .randomBytes(4)
-        .toString("hex")
-        .toUpperCase();
-
-    const conexion = {
-        codigo,
-        nombre: nombre?.trim() || "Conexión SDR",
-        mensaje: mensaje?.trim() || "Te han enviado una conexión.",
-        url,
-        creada: Date.now(),
-        ubicacion: null
-    };
-
-    conexiones.set(codigo, conexion);
-
-    res.json({
-        ok: true,
-        codigo,
-        enlace: `/c/${codigo}`
-    });
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
 });
 
-// Obtener una conexión
-app.get("/api/conexiones/:codigo", (req, res) => {
-    const codigo = req.params.codigo.toUpperCase();
-    const conexion = conexiones.get(codigo);
-
-    if (!conexion) {
-        return res.status(404).json({
-            error: "Esta conexión ya no existe."
-        });
-    }
-
-    res.json({
-        codigo: conexion.codigo,
-        nombre: conexion.nombre,
-        mensaje: conexion.mensaje,
-        url: conexion.url,
-        activa: Boolean(conexion.ubicacion)
-    });
-});
-
-// Ruta visual de conexiones
 app.get("/c/:codigo", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(__dirname + "/public/index.html");
+});
+
+app.post("/api/conexiones", (req, res) => {
+  const nombre = String(req.body.nombre || "").trim();
+  const mensaje = String(req.body.mensaje || "").trim();
+  const url = String(req.body.url || "").trim();
+
+  if (!nombre) {
+    return res.status(400).json({
+      ok: false,
+      error: "El nombre es obligatorio."
+    });
+  }
+
+  if (!urlValida(url)) {
+    return res.status(400).json({
+      ok: false,
+      error: "El enlace no es válido."
+    });
+  }
+
+  let codigo = generarCodigo();
+
+  while (conexiones.has(codigo)) {
+    codigo = generarCodigo();
+  }
+
+  conexiones.set(codigo, {
+    codigo: codigo,
+    nombre: nombre,
+    mensaje: mensaje,
+    url: url,
+    ubicacion: null,
+    creada: Date.now()
+  });
+
+  res.json({
+    ok: true,
+    codigo: codigo,
+    enlace: "/c/" + codigo
+  });
+});
+
+app.get("/api/conexiones/:codigo", (req, res) => {
+  const codigo = String(req.params.codigo || "").toUpperCase();
+  const conexion = conexiones.get(codigo);
+
+  if (!conexion) {
+    return res.status(404).json({
+      ok: false,
+      error: "La conexión no existe."
+    });
+  }
+
+  res.json({
+    ok: true,
+    codigo: conexion.codigo,
+    nombre: conexion.nombre,
+    mensaje: conexion.mensaje,
+    url: conexion.url,
+    activa: conexion.ubicacion !== null
+  });
 });
 
 io.on("connection", (socket) => {
+  console.log("Cliente conectado:", socket.id);
 
-    socket.on("crear-conexion", (codigo) => {
-        socket.join(codigo);
+  socket.on("crear-conexion", (codigo) => {
+    const codigoSeguro = String(codigo || "").toUpperCase();
+
+    if (!conexiones.has(codigoSeguro)) {
+      socket.emit("error-conexion", {
+        mensaje: "La conexión no existe."
+      });
+      return;
+    }
+
+    socket.join(codigoSeguro);
+  });
+
+  socket.on("unirse-conexion", (codigo) => {
+    const codigoSeguro = String(codigo || "").toUpperCase();
+    const conexion = conexiones.get(codigoSeguro);
+
+    if (!conexion) {
+      socket.emit("error-conexion", {
+        mensaje: "La conexión no existe o expiró."
+      });
+      return;
+    }
+
+    socket.join(codigoSeguro);
+
+    socket.emit("conexion-lista", {
+      codigo: conexion.codigo,
+      nombre: conexion.nombre,
+      mensaje: conexion.mensaje,
+      url: conexion.url,
+      ubicacion: conexion.ubicacion
     });
+  });
 
-    socket.on("unirse-conexion", (codigo) => {
-        const conexion = conexiones.get(codigo);
+  socket.on("ubicacion", (datos) => {
+    const codigo = String(datos?.codigo || "").toUpperCase();
+    const conexion = conexiones.get(codigo);
 
-        if (!conexion) {
-            socket.emit("conexion-error", "La conexión no existe o expiró.");
-            return;
-        }
+    if (!conexion) {
+      return;
+    }
 
-        socket.join(codigo);
+    const latitude = Number(datos?.latitude);
+    const longitude = Number(datos?.longitude);
+    const accuracy = Number(datos?.accuracy);
 
-        socket.emit("conexion-lista", {
-            codigo: conexion.codigo,
-            nombre: conexion.nombre,
-            mensaje: conexion.mensaje,
-            url: conexion.url,
-            ubicacion: conexion.ubicacion
-        });
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return;
+    }
 
-        if (conexion.ubicacion) {
-            socket.emit("ubicacion", conexion.ubicacion);
-        }
-    });
+    if (latitude < -90 || latitude > 90) {
+      return;
+    }
 
-    socket.on("ubicacion", (data) => {
-        const codigo = String(data.codigo || "").toUpperCase();
-        const conexion = conexiones.get(codigo);
+    if (longitude < -180 || longitude > 180) {
+      return;
+    }
 
-        if (!conexion) return;
+    conexion.ubicacion = {
+      latitude: latitude,
+      longitude: longitude,
+      accuracy: Number.isFinite(accuracy) ? accuracy : null,
+      actualizada: Date.now()
+    };
 
-        const latitude = Number(data.latitude);
-        const longitude = Number(data.longitude);
-        const accuracy = Number(data.accuracy);
+    io.to(codigo).emit("ubicacion-actualizada", conexion.ubicacion);
+  });
 
-        if (
-            !Number.isFinite(latitude) ||
-            !Number.isFinite(longitude)
-        ) {
-            return;
-        }
+  socket.on("dejar-de-compartir", (codigo) => {
+    const codigoSeguro = String(codigo || "").toUpperCase();
+    const conexion = conexiones.get(codigoSeguro);
 
-        const ubicacion = {
-            latitude,
-            longitude,
-            accuracy: Number.isFinite(accuracy) ? accuracy : null,
-            updatedAt: Date.now()
-        };
+    if (!conexion) {
+      return;
+    }
 
-        // Solo conserva la última posición.
-        conexion.ubicacion = ubicacion;
+    conexion.ubicacion = null;
 
-        socket.to(codigo).emit("ubicacion", ubicacion);
-    });
+    io.to(codigoSeguro).emit("ubicacion-eliminada");
+  });
 
-    socket.on("dejar-de-compartir", (codigo) => {
-        codigo = String(codigo || "").toUpperCase();
+  socket.on("cerrar-conexion", (codigo) => {
+    const codigoSeguro = String(codigo || "").toUpperCase();
 
-        const conexion = conexiones.get(codigo);
+    if (!conexiones.has(codigoSeguro)) {
+      return;
+    }
 
-        if (!conexion) return;
+    conexiones.delete(codigoSeguro);
 
-        // Eliminamos inmediatamente la ubicación.
-        conexion.ubicacion = null;
+    io.to(codigoSeguro).emit("conexion-cerrada");
 
-        socket.to(codigo).emit("ubicacion-eliminada");
-    });
+    console.log("Conexión cerrada:", codigoSeguro);
+  });
 
-    socket.on("cerrar-conexion", (codigo) => {
-        codigo = String(codigo || "").toUpperCase();
-
-        // Borra toda la conexión temporal.
-        conexiones.delete(codigo);
-
-        io.to(codigo).emit("conexion-cerrada");
-    });
-
-    socket.on("disconnect", () => {
-        // No guardamos ubicación asociada permanentemente al socket.
-    });
+  socket.on("disconnect", () => {
+    console.log("Cliente desconectado:", socket.id);
+  });
 });
 
-// Limpieza automática.
-// Las conexiones que llevan 24 h sin uso desaparecen.
 setInterval(() => {
-    const ahora = Date.now();
+  const ahora = Date.now();
+  const limite = 24 * 60 * 60 * 1000;
 
-    for (const [codigo, conexion] of conexiones) {
-        if (ahora - conexion.creada > 24 * 60 * 60 * 1000) {
-            conexiones.delete(codigo);
-            io.to(codigo).emit("conexion-cerrada");
-        }
+  for (const [codigo, conexion] of conexiones) {
+    if (ahora - conexion.creada > limite) {
+      conexiones.delete(codigo);
+      io.to(codigo).emit("conexion-cerrada");
     }
+  }
 }, 10 * 60 * 1000);
 
 server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Conexión Segura SDR funcionando en puerto ${PORT}`);
+  console.log("Servidor funcionando en el puerto " + PORT);
 });
-```
-
