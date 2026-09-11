@@ -3,332 +3,738 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Conexión Segura SDR</title>
 
 <link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-* {
-    box-sizing: border-box;
+
+*{
+box-sizing:border-box;
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #080808;
-    color: white;
+body{
+margin:0;
+background:#070807;
+color:#fff;
+font-family:Inter,Arial,sans-serif;
+min-height:100vh;
 }
 
-header {
-    height: 65px;
-    background: #101010;
-    border-bottom: 1px solid #252525;
-    display: flex;
-    align-items: center;
-    padding: 0 25px;
+button,input,textarea{
+font:inherit;
 }
 
-.logo {
-    font-size: 20px;
-    font-weight: bold;
-    letter-spacing: 1px;
+button{
+cursor:pointer;
 }
 
-.logo span {
-    color: #00e676;
+.app{
+min-height:100vh;
+padding-bottom:80px;
 }
 
-.layout {
-    display: flex;
-    min-height: calc(100vh - 65px);
+/* HEADER */
+
+header{
+height:68px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 22px;
+border-bottom:1px solid #202320;
+background:rgba(7,8,7,.92);
+backdrop-filter:blur(15px);
+position:sticky;
+top:0;
+z-index:1000;
 }
 
-.sidebar {
-    width: 230px;
-    background: #0d0d0d;
-    border-right: 1px solid #222;
-    padding: 20px 12px;
+.brand{
+font-weight:800;
+letter-spacing:1px;
+font-size:18px;
 }
 
-.sidebar button {
-    width: 100%;
-    padding: 13px;
-    margin-bottom: 8px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: #aaa;
-    text-align: left;
-    cursor: pointer;
+.brand span{
+color:#27e878;
 }
 
-.sidebar button:hover,
-.sidebar button.active {
-    background: #181818;
-    color: white;
+.status{
+display:flex;
+align-items:center;
+gap:7px;
+font-size:12px;
+color:#8c948e;
 }
 
-main {
-    flex: 1;
-    padding: 25px;
-    max-width: 1200px;
+.dot{
+width:8px;
+height:8px;
+border-radius:50%;
+background:#27e878;
+box-shadow:0 0 10px #27e878;
 }
 
-.card {
-    background: #111;
-    border: 1px solid #242424;
-    border-radius: 16px;
-    padding: 22px;
-    margin-bottom: 20px;
+/* MAIN */
+
+main{
+width:min(1050px,100%);
+margin:auto;
+padding:25px 18px;
 }
 
-h1 {
-    margin-top: 0;
+.page{
+display:none;
+animation:fade .2s ease;
 }
 
-h2 {
-    margin-top: 0;
+.page.active{
+display:block;
 }
 
-input {
-    width: 100%;
-    padding: 13px;
-    margin: 7px 0 15px;
-    background: #090909;
-    color: white;
-    border: 1px solid #333;
-    border-radius: 9px;
+@keyframes fade{
+from{opacity:0;transform:translateY(5px)}
+to{opacity:1;transform:translateY(0)}
 }
 
-button.primary {
-    background: #00e676;
-    color: #000;
-    border: 0;
-    padding: 13px 18px;
-    border-radius: 9px;
-    font-weight: bold;
-    cursor: pointer;
+/* HERO */
+
+.hero{
+padding:35px 5px 25px;
 }
 
-button.danger {
-    background: #ff5252;
-    color: white;
-    border: 0;
-    padding: 13px 18px;
-    border-radius: 9px;
-    cursor: pointer;
+.eyebrow{
+color:#27e878;
+font-size:12px;
+font-weight:800;
+letter-spacing:2px;
+text-transform:uppercase;
 }
 
-button.secondary {
-    background: #222;
-    color: white;
-    border: 1px solid #333;
-    padding: 13px 18px;
-    border-radius: 9px;
-    cursor: pointer;
+.hero h1{
+font-size:clamp(32px,8vw,58px);
+line-height:1;
+margin:12px 0;
 }
 
-.codigo {
-    margin-top: 15px;
-    padding: 18px;
-    background: #080808;
-    border: 1px dashed #444;
-    border-radius: 10px;
-    font-size: 24px;
-    letter-spacing: 4px;
-    text-align: center;
-    font-weight: bold;
+.hero p{
+color:#969d98;
+max-width:650px;
+line-height:1.6;
+font-size:15px;
 }
 
-.estado {
-    margin: 15px 0;
-    padding: 12px;
-    border-radius: 9px;
-    background: #171717;
-    color: #aaa;
+/* CARDS */
+
+.card{
+background:linear-gradient(145deg,#111311,#0b0d0b);
+border:1px solid #242824;
+border-radius:20px;
+padding:20px;
+margin-bottom:18px;
+box-shadow:0 15px 40px rgba(0,0,0,.2);
 }
 
-.estado.online {
-    color: #00e676;
+.card h2{
+margin:0 0 8px;
+font-size:20px;
 }
 
-#map {
-    width: 100%;
-    height: 450px;
-    border-radius: 14px;
-    overflow: hidden;
+.muted{
+color:#8e968f;
+line-height:1.55;
+font-size:14px;
 }
 
-.hidden {
-    display: none;
+/* BUTTONS */
+
+.primary{
+background:#27e878;
+border:0;
+color:#031007;
+font-weight:800;
+padding:14px 18px;
+border-radius:12px;
+width:100%;
+margin-top:10px;
 }
 
-.info {
-    color: #999;
-    line-height: 1.6;
+.primary:hover{
+filter:brightness(1.08);
 }
 
-@media(max-width:700px) {
-    .sidebar {
-        width: 70px;
-    }
-
-    .sidebar button {
-        font-size: 0;
-        text-align: center;
-    }
-
-    main {
-        padding: 15px;
-    }
+.secondary{
+background:#171a17;
+border:1px solid #303530;
+color:#fff;
+padding:13px 16px;
+border-radius:12px;
 }
+
+.danger{
+background:#291414;
+border:1px solid #5c2929;
+color:#ff7777;
+padding:13px 16px;
+border-radius:12px;
+}
+
+/* FORM */
+
+label{
+display:block;
+font-size:13px;
+font-weight:700;
+margin:16px 0 7px;
+color:#d5d9d5;
+}
+
+input,textarea{
+width:100%;
+background:#080a08;
+border:1px solid #303430;
+border-radius:12px;
+padding:14px;
+color:#fff;
+outline:none;
+}
+
+textarea{
+min-height:100px;
+resize:vertical;
+}
+
+input:focus,textarea:focus{
+border-color:#27e878;
+}
+
+/* LINK */
+
+.link-box{
+display:none;
+margin-top:18px;
+background:#080a08;
+border:1px dashed #3b433b;
+border-radius:15px;
+padding:16px;
+}
+
+.link-box.show{
+display:block;
+}
+
+.generated{
+word-break:break-all;
+color:#27e878;
+font-size:13px;
+line-height:1.5;
+margin-bottom:12px;
+}
+
+/* CONNECTION */
+
+.connection-head{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:18px;
+}
+
+.avatar{
+width:45px;
+height:45px;
+border-radius:14px;
+background:#172019;
+display:grid;
+place-items:center;
+font-size:20px;
+}
+
+.connection-name{
+font-weight:800;
+}
+
+.connection-msg{
+color:#8e968f;
+font-size:13px;
+margin-top:3px;
+}
+
+/* CONTENT */
+
+.content-link{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+padding:15px;
+background:#0a0c0a;
+border:1px solid #282d28;
+border-radius:14px;
+}
+
+.content-domain{
+font-size:12px;
+color:#858d86;
+word-break:break-all;
+}
+
+.open-link{
+color:#27e878;
+font-weight:800;
+text-decoration:none;
+white-space:nowrap;
+}
+
+/* LOCATION */
+
+.consent{
+padding:18px;
+border:1px solid #303630;
+border-radius:15px;
+background:#0a0c0a;
+}
+
+.consent strong{
+display:block;
+margin-bottom:7px;
+}
+
+.map-wrap{
+margin-top:18px;
+display:none;
+}
+
+.map-wrap.show{
+display:block;
+}
+
+#map{
+height:430px;
+border-radius:17px;
+overflow:hidden;
+}
+
+.location-status{
+margin:14px 0;
+padding:12px;
+border-radius:11px;
+background:#151815;
+color:#929992;
+font-size:13px;
+}
+
+.location-status.live{
+color:#27e878;
+}
+
+/* STATS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+}
+
+.stat{
+background:#0a0c0a;
+border:1px solid #242824;
+border-radius:15px;
+padding:16px;
+}
+
+.stat-number{
+font-size:22px;
+font-weight:800;
+}
+
+.stat-label{
+font-size:11px;
+color:#7e867f;
+margin-top:4px;
+}
+
+/* BOTTOM NAV */
+
+nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:72px;
+background:rgba(10,11,10,.96);
+border-top:1px solid #252925;
+backdrop-filter:blur(18px);
+display:flex;
+justify-content:center;
+z-index:2000;
+}
+
+.nav-inner{
+width:min(600px,100%);
+display:flex;
+justify-content:space-around;
+}
+
+.nav-btn{
+background:none;
+border:0;
+color:#737a74;
+font-size:11px;
+padding:8px 18px;
+}
+
+.nav-btn span{
+display:block;
+font-size:21px;
+margin-bottom:3px;
+}
+
+.nav-btn.active{
+color:#27e878;
+}
+
+/* RESPONSIVE */
+
+@media(min-width:750px){
+
+nav{
+position:static;
+height:auto;
+border:0;
+background:transparent;
+}
+
+.nav-inner{
+justify-content:flex-start;
+gap:8px;
+}
+
+.nav-btn{
+font-size:13px;
+}
+
+.app{
+padding-bottom:0;
+}
+
+}
+
+@media(max-width:500px){
+
+main{
+padding:18px 13px;
+}
+
+.card{
+padding:17px;
+border-radius:17px;
+}
+
+.stats{
+grid-template-columns:1fr;
+}
+
+#map{
+height:380px;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <header>
-    <div class="logo">
-        CONEXIÓN SEGURA <span>SDR</span>
-    </div>
+<div class="brand">
+CONEXIÓN SEGURA <span>SDR</span>
+</div>
+
+<div class="status">
+<div class="dot"></div>
+ONLINE
+</div>
 </header>
-
-<div class="layout">
-
-<aside class="sidebar">
-    <button class="active" onclick="mostrar('inicio', this)">🏠 Inicio</button>
-    <button onclick="mostrar('conexion', this)">🔗 Nueva conexión</button>
-    <button onclick="mostrar('ubicacion', this)">📍 Ubicación</button>
-</aside>
 
 <main>
 
 <!-- INICIO -->
-<section id="inicio">
 
-    <div class="card">
-        <h1>Conexión Segura SDR</h1>
+<section id="inicio" class="page active">
 
-        <p class="info">
-            Comparte tu ubicación en tiempo real con una persona
-            autorizada mediante una conexión temporal.
-        </p>
+<div class="hero">
 
-        <p class="info">
-            La ubicación solamente se transmite cuando tú autorizas
-            el permiso del navegador y puedes detenerla cuando quieras.
-        </p>
+<div class="eyebrow">Conexiones privadas</div>
 
-        <button class="primary"
-        onclick="mostrar('conexion')">
-            Crear conexión
-        </button>
-    </div>
+<h1>Comparte.<br>Conecta. Seguro.</h1>
 
-    <div class="card">
-        <h2>Privacidad</h2>
+<p>
+Crea enlaces personalizados para compartir contenido
+y, si la otra persona lo autoriza, compartir ubicación
+en tiempo real.
+</p>
 
-        <p class="info">
-            Esta versión no guarda un historial de ubicaciones.
-            El servidor solamente transmite la ubicación actual
-            mientras la conexión está activa.
-        </p>
-    </div>
+</div>
 
-</section>
+<div class="card">
 
+<h2>Crear una conexión</h2>
 
-<!-- NUEVA CONEXIÓN -->
-<section id="conexion" class="hidden">
+<p class="muted">
+Genera un enlace temporal para compartir con tu familia
+o personas de confianza.
+</p>
 
-    <div class="card">
+<button class="primary"
+onclick="mostrarPagina('crear')">
+🔗 Crear nuevo enlace
+</button>
 
-        <h2>Nueva conexión</h2>
+</div>
 
-        <p class="info">
-            Crea un código temporal y compártelo únicamente
-            con la persona con quien deseas compartir tu ubicación.
-        </p>
+<div class="card">
 
-        <button class="primary"
-        onclick="crearConexion()">
-            Crear conexión
-        </button>
+<h2>¿Tienes un código?</h2>
 
-        <div id="codigoCreado" class="hidden">
+<p class="muted">
+Abre una conexión que alguien compartió contigo.
+</p>
 
-            <p class="info">
-                Código de conexión:
-            </p>
+<input id="codigoInicio"
+placeholder="Ej. A4F91B2C">
 
-            <div class="codigo" id="codigo"></div>
+<button class="primary"
+onclick="abrirCodigo()">
+Abrir conexión
+</button>
 
-            <br>
+</div>
 
-            <button class="secondary"
-            onclick="copiarCodigo()">
-                Copiar código
-            </button>
+<div class="card">
 
-        </div>
+<div class="stats">
 
-    </div>
+<div class="stat">
+<div class="stat-number">24h</div>
+<div class="stat-label">Duración máxima</div>
+</div>
 
+<div class="stat">
+<div class="stat-number">LIVE</div>
+<div class="stat-label">Ubicación en vivo</div>
+</div>
 
-    <div class="card">
+<div class="stat">
+<div class="stat-number">0</div>
+<div class="stat-label">Historial guardado</div>
+</div>
 
-        <h2>Unirse a una conexión</h2>
+</div>
 
-        <input
-        id="codigoEntrada"
-        placeholder="Escribe el código">
-
-        <button class="primary"
-        onclick="unirseConexion()">
-            Unirse
-        </button>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- UBICACIÓN -->
-<section id="ubicacion" class="hidden">
+<!-- CREAR -->
 
-    <div class="card">
+<section id="crear" class="page">
 
-        <h2>Ubicación en tiempo real</h2>
+<div class="card">
 
-        <div id="estado" class="estado">
-            Sin conexión
-        </div>
+<div class="eyebrow">Nueva conexión</div>
 
-        <button class="primary"
-        id="btnCompartir"
-        onclick="compartirUbicacion()">
-            📍 Compartir ubicación
-        </button>
+<h2 style="margin-top:8px">
+Crear enlace personalizado
+</h2>
 
-        <button class="danger"
-        onclick="detenerUbicacion()">
-            ⛔ Detener
-        </button>
+<p class="muted">
+Puedes compartir cualquier enlace web normal:
+TikTok, YouTube, Instagram, páginas web, etc.
+</p>
 
-    </div>
+<label>Nombre de la conexión</label>
 
-    <div class="card">
+<input
+id="nombre"
+placeholder="Ej. Mi familia">
 
-        <div id="map"></div>
+<label>Mensaje</label>
 
-    </div>
+<textarea
+id="mensaje"
+placeholder="Mira esto 👀">
+</textarea>
+
+<label>Enlace de contenido</label>
+
+<input
+id="url"
+type="url"
+placeholder="https://www.tiktok.com/...">
+
+<button class="primary"
+onclick="crearEnlace()">
+⚡ Generar enlace
+</button>
+
+<div id="linkBox" class="link-box">
+
+<div class="muted">
+Tu enlace está listo:
+</div>
+
+<div id="generatedLink"
+class="generated">
+</div>
+
+<button class="secondary"
+onclick="copiarEnlace()">
+📋 Copiar enlace
+</button>
+
+<button class="primary"
+onclick="compartirEnlace()">
+📲 Compartir
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CONEXIÓN -->
+
+<section id="conexion" class="page">
+
+<div id="connectionCard"
+class="card">
+
+<div class="connection-head">
+
+<div class="avatar">🔗</div>
+
+<div>
+<div id="connectionName"
+class="connection-name">
+Conexión SDR
+</div>
+
+<div id="connectionMessage"
+class="connection-msg">
+Cargando conexión...
+</div>
+</div>
+
+</div>
+
+<div class="content-link">
+
+<div>
+
+<strong>Contenido compartido</strong>
+
+<div id="connectionUrl"
+class="content-domain">
+</div>
+
+</div>
+
+<a id="openContent"
+class="open-link"
+target="_blank"
+rel="noopener noreferrer">
+ABRIR ↗
+</a>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>📍 Ubicación</h2>
+
+<div class="consent">
+
+<strong>
+Tu ubicación NO se está compartiendo.
+</strong>
+
+<div class="muted">
+Solo se solicitará la ubicación si tú pulsas
+“Compartir mi ubicación” y aceptas el permiso
+del navegador.
+</div>
+
+<button class="primary"
+onclick="compartirUbicacion()">
+📍 Compartir mi ubicación
+</button>
+
+</div>
+
+<div id="locationStatus"
+class="location-status">
+Esperando autorización.
+</div>
+
+<div id="mapWrap" class="map-wrap">
+
+<div id="map"></div>
+
+<br>
+
+<button class="danger"
+onclick="detenerUbicacion()">
+⛔ Detener ubicación
+</button>
+
+</div>
+
+</div>
 
 </section>
 
 </main>
+
+
+<nav>
+
+<div class="nav-inner">
+
+<button class="nav-btn active"
+onclick="mostrarPagina('inicio',this)">
+<span>⌂</span>
+Inicio
+</button>
+
+<button class="nav-btn"
+onclick="mostrarPagina('crear',this)">
+<span>＋</span>
+Crear
+</button>
+
+<button class="nav-btn"
+onclick="mostrarPagina('conexion',this)">
+<span>⌖</span>
+Conexión
+</button>
+
+</div>
+
+</nav>
+
 </div>
 
 
@@ -341,324 +747,613 @@ button.secondary {
 const socket = io();
 
 let codigoActual = null;
+let enlaceGenerado = "";
 let watchId = null;
-
-let mapa = L.map("map").setView([19.4326, -99.1332], 5);
-
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        attribution: "&copy; OpenStreetMap"
-    }
-).addTo(mapa);
-
+let mapa = null;
 let marcador = null;
 
 
-// CAMBIAR SECCIÓN
+// -------------------------
+// NAVEGACIÓN
+// -------------------------
 
-function mostrar(id, boton) {
+function mostrarPagina(id, boton){
 
-    document.querySelectorAll("main > section")
-    .forEach(section => section.classList.add("hidden"));
+document.querySelectorAll(".page")
+.forEach(p => p.classList.remove("active"));
 
-    document.getElementById(id)
-    .classList.remove("hidden");
+const pagina = document.getElementById(id);
 
-    document.querySelectorAll(".sidebar button")
-    .forEach(b => b.classList.remove("active"));
+if(pagina){
+pagina.classList.add("active");
+}
 
-    if (boton) {
-        boton.classList.add("active");
-    }
+document.querySelectorAll(".nav-btn")
+.forEach(b => b.classList.remove("active"));
 
-    setTimeout(() => {
-        mapa.invalidateSize();
-    }, 100);
+if(boton){
+boton.classList.add("active");
+}
+
+if(id === "conexion"){
+setTimeout(iniciarMapa,100);
+}
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
 }
 
 
-// CREAR CONEXIÓN
+// -------------------------
+// CREAR ENLACE
+// -------------------------
 
-function crearConexion() {
+async function crearEnlace(){
 
-    codigoActual =
-        Math.random()
-        .toString(36)
-        .substring(2, 8)
-        .toUpperCase();
+const nombre =
+document.getElementById("nombre").value.trim();
 
-    socket.emit("crear-conexion", codigoActual);
+const mensaje =
+document.getElementById("mensaje").value.trim();
 
-    document.getElementById("codigo").textContent =
-        codigoActual;
+const url =
+document.getElementById("url").value.trim();
 
-    document.getElementById("codigoCreado")
-        .classList.remove("hidden");
+if(!url){
+alert("Introduce un enlace.");
+return;
+}
 
-    actualizarEstado(
-        "Conexión creada: " + codigoActual,
-        true
-    );
+if(!/^https?:\/\//i.test(url)){
+alert("El enlace debe comenzar con http:// o https://");
+return;
+}
+
+try{
+
+const respuesta =
+await fetch("/api/conexiones",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+nombre,
+mensaje,
+url
+})
+
+});
+
+const data = await respuesta.json();
+
+if(!respuesta.ok){
+alert(data.error || "No se pudo crear.");
+return;
+}
+
+codigoActual = data.codigo;
+
+enlaceGenerado =
+location.origin + data.enlace;
+
+document.getElementById("generatedLink")
+.textContent = enlaceGenerado;
+
+document.getElementById("linkBox")
+.classList.add("show");
+
+}catch(error){
+
+alert("No se pudo conectar con el servidor.");
+
+}
+
 }
 
 
-// UNIRSE
-
-function unirseConexion() {
-
-    const codigo =
-        document.getElementById("codigoEntrada")
-        .value
-        .trim()
-        .toUpperCase();
-
-    if (!codigo) {
-        alert("Escribe un código.");
-        return;
-    }
-
-    codigoActual = codigo;
-
-    socket.emit(
-        "unirse-conexion",
-        codigoActual
-    );
-
-    actualizarEstado(
-        "Conectado a " + codigoActual,
-        true
-    );
-
-    mostrar("ubicacion");
-}
-
-
+// -------------------------
 // COPIAR
+// -------------------------
 
-function copiarCodigo() {
+async function copiarEnlace(){
 
-    navigator.clipboard.writeText(codigoActual);
+try{
 
-    alert("Código copiado.");
+await navigator.clipboard.writeText(
+enlaceGenerado
+);
+
+alert("Enlace copiado.");
+
+}catch{
+
+alert("No se pudo copiar automáticamente.");
+
+}
+
 }
 
 
-// COMPARTIR UBICACIÓN
+// -------------------------
+// COMPARTIR
+// -------------------------
 
-function compartirUbicacion() {
+async function compartirEnlace(){
 
-    if (!codigoActual) {
-        alert(
-            "Primero crea o únete a una conexión."
-        );
-        return;
-    }
+if(!enlaceGenerado)return;
 
-    if (!navigator.geolocation) {
-        alert(
-            "Este navegador no permite geolocalización."
-        );
-        return;
-    }
+if(navigator.share){
 
-    actualizarEstado(
-        "Solicitando permiso de ubicación..."
-    );
+try{
 
-    navigator.geolocation.getCurrentPosition(
+await navigator.share({
+title:"Conexión Segura SDR",
+text:"Te comparto una conexión.",
+url:enlaceGenerado
+});
 
-        position => {
+}catch{}
 
-            enviarUbicacion(position);
+}else{
 
-            watchId =
-                navigator.geolocation.watchPosition(
+copiarEnlace();
 
-                    enviarUbicacion,
+}
 
-                    errorUbicacion,
-
-                    {
-                        enableHighAccuracy: true,
-                        maximumAge: 3000,
-                        timeout: 10000
-                    }
-                );
-
-            actualizarEstado(
-                "🟢 Compartiendo ubicación en tiempo real",
-                true
-            );
-        },
-
-        errorUbicacion,
-
-        {
-            enableHighAccuracy: true,
-            timeout: 10000
-        }
-    );
 }
 
 
+// -------------------------
+// ABRIR CÓDIGO
+// -------------------------
+
+function abrirCodigo(){
+
+const codigo =
+document.getElementById("codigoInicio")
+.value
+.trim()
+.toUpperCase();
+
+if(!codigo){
+
+alert("Escribe un código.");
+
+return;
+
+}
+
+cargarConexion(codigo);
+
+}
+
+
+// -------------------------
+// CARGAR CONEXIÓN
+// -------------------------
+
+async function cargarConexion(codigo){
+
+codigoActual = codigo;
+
+try{
+
+const respuesta =
+await fetch(
+"/api/conexiones/" +
+encodeURIComponent(codigo)
+);
+
+const data = await respuesta.json();
+
+if(!respuesta.ok){
+
+alert(data.error || "Conexión no encontrada.");
+
+return;
+
+}
+
+document.getElementById("connectionName")
+.textContent = data.nombre;
+
+document.getElementById("connectionMessage")
+.textContent = data.mensaje;
+
+document.getElementById("connectionUrl")
+.textContent = data.url;
+
+const abrir =
+document.getElementById("openContent");
+
+abrir.href = data.url;
+
+mostrarPagina("conexion");
+
+socket.emit(
+"unirse-conexion",
+codigo
+);
+
+}catch{
+
+alert("No se pudo cargar la conexión.");
+
+}
+
+}
+
+
+// -------------------------
+// URL /c/CODIGO
+// -------------------------
+
+function revisarRuta(){
+
+const partes =
+location.pathname.split("/");
+
+if(
+partes[1] === "c" &&
+partes[2]
+){
+
+cargarConexion(
+partes[2].toUpperCase()
+);
+
+}
+
+}
+
+revisarRuta();
+
+
+// -------------------------
+// MAPA
+// -------------------------
+
+function iniciarMapa(){
+
+if(mapa)return;
+
+mapa =
+L.map("map")
+.setView(
+[19.4326,-99.1332],
+5
+);
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+attribution:"© OpenStreetMap"
+}
+).addTo(mapa);
+
+}
+
+
+// -------------------------
+// UBICACIÓN
+// -------------------------
+
+function compartirUbicacion(){
+
+if(!codigoActual){
+
+alert(
+"Primero abre o crea una conexión."
+);
+
+return;
+
+}
+
+if(!navigator.geolocation){
+
+alert(
+"Este navegador no permite geolocalización."
+);
+
+return;
+
+}
+
+actualizarEstado(
+"Solicitando permiso de ubicación..."
+);
+
+navigator.geolocation.getCurrentPosition(
+
+(position)=>{
+
+enviarUbicacion(position);
+
+watchId =
+navigator.geolocation.watchPosition(
+
+enviarUbicacion,
+
+errorUbicacion,
+
+{
+enableHighAccuracy:true,
+maximumAge:3000,
+timeout:15000
+}
+
+);
+
+actualizarEstado(
+"🟢 Compartiendo ubicación en tiempo real.",
+true
+);
+
+},
+
+errorUbicacion,
+
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
+}
+
+);
+
+}
+
+
+// -------------------------
 // ENVIAR UBICACIÓN
+// -------------------------
 
-function enviarUbicacion(position) {
+function enviarUbicacion(position){
 
-    const latitude =
-        position.coords.latitude;
+const latitude =
+position.coords.latitude;
 
-    const longitude =
-        position.coords.longitude;
+const longitude =
+position.coords.longitude;
 
-    socket.emit("ubicacion", {
+const accuracy =
+position.coords.accuracy;
 
-        codigo: codigoActual,
+socket.emit(
+"ubicacion",
+{
+codigo:codigoActual,
+latitude,
+longitude,
+accuracy
+}
+);
 
-        latitude,
-        longitude
+mostrarUbicacion(
+latitude,
+longitude,
+accuracy
+);
 
-    });
-
-    mostrarUbicacion(
-        latitude,
-        longitude
-    );
 }
 
 
+// -------------------------
 // RECIBIR UBICACIÓN
+// -------------------------
 
 socket.on(
-    "ubicacion",
-    data => {
+"ubicacion",
+(data)=>{
 
-        mostrarUbicacion(
-            data.latitude,
-            data.longitude
-        );
+mostrarUbicacion(
+data.latitude,
+data.longitude,
+data.accuracy
+);
 
-        actualizarEstado(
-            "🟢 Ubicación recibida en tiempo real",
-            true
-        );
-    }
+actualizarEstado(
+"🟢 Ubicación recibida en tiempo real.",
+true
+);
+
+}
 );
 
 
-// MOSTRAR EN MAPA
+// -------------------------
+// MAPA + PRECISIÓN
+// -------------------------
 
 function mostrarUbicacion(
-    latitude,
-    longitude
-) {
+latitude,
+longitude,
+accuracy
+){
 
-    const posicion =
-        [latitude, longitude];
+iniciarMapa();
 
-    if (!marcador) {
+const posicion =
+[latitude,longitude];
 
-        marcador =
-            L.marker(posicion)
-            .addTo(mapa);
+if(!marcador){
 
-    } else {
+marcador =
+L.marker(posicion)
+.addTo(mapa);
 
-        marcador.setLatLng(posicion);
+}else{
 
-    }
+marcador.setLatLng(posicion);
 
-    mapa.setView(
-        posicion,
-        17
-    );
+}
+
+marcador.bindPopup(
+"Ubicación actual<br>" +
+"Precisión aproximada: ±" +
+Math.round(accuracy || 0) +
+" m"
+);
+
+mapa.setView(
+posicion,
+17
+);
+
+document.getElementById("mapWrap")
+.classList.add("show");
+
 }
 
 
+// -------------------------
 // DETENER
+// -------------------------
 
-function detenerUbicacion() {
+function detenerUbicacion(){
 
-    if (watchId !== null) {
+if(watchId !== null){
 
-        navigator.geolocation.clearWatch(
-            watchId
-        );
+navigator.geolocation.clearWatch(
+watchId
+);
 
-        watchId = null;
-    }
+watchId = null;
 
-    if (codigoActual) {
+}
 
-        socket.emit(
-            "dejar-de-compartir",
-            codigoActual
-        );
-    }
+if(codigoActual){
 
-    actualizarEstado(
-        "⛔ Dejaste de compartir tu ubicación."
-    );
+socket.emit(
+"dejar-de-compartir",
+codigoActual
+);
+
+}
+
+actualizarEstado(
+"⛔ Dejaste de compartir tu ubicación."
+);
+
 }
 
 
-// ERRORES
-
-function errorUbicacion(error) {
-
-    let mensaje =
-        "No se pudo obtener la ubicación.";
-
-    if (error.code === 1) {
-        mensaje =
-            "Permiso de ubicación rechazado.";
-    }
-
-    if (error.code === 2) {
-        mensaje =
-            "Ubicación no disponible.";
-    }
-
-    if (error.code === 3) {
-        mensaje =
-            "Se agotó el tiempo para obtener la ubicación.";
-    }
-
-    actualizarEstado(mensaje);
-}
-
-
+// -------------------------
 // ESTADO
+// -------------------------
 
 function actualizarEstado(
-    mensaje,
-    online = false
-) {
+texto,
+live=false
+){
 
-    const elemento =
-        document.getElementById("estado");
+const elemento =
+document.getElementById(
+"locationStatus"
+);
 
-    elemento.textContent =
-        mensaje;
+elemento.textContent = texto;
 
-    elemento.classList.toggle(
-        "online",
-        online
-    );
+elemento.classList.toggle(
+"live",
+live
+);
+
 }
 
 
-// SERVIDOR DESCONECTADO
+// -------------------------
+// ERRORES GPS
+// -------------------------
+
+function errorUbicacion(error){
+
+if(error.code === 1){
+
+actualizarEstado(
+"Permiso de ubicación rechazado."
+);
+
+}else if(error.code === 2){
+
+actualizarEstado(
+"El dispositivo no pudo determinar tu ubicación."
+);
+
+}else if(error.code === 3){
+
+actualizarEstado(
+"Se agotó el tiempo para obtener la ubicación."
+);
+
+}else{
+
+actualizarEstado(
+"No se pudo obtener la ubicación."
+);
+
+}
+
+}
+
+
+// -------------------------
+// CONEXIÓN SOCKET
+// -------------------------
 
 socket.on(
-    "disconnect",
-    () => {
+"conexion-error",
+(mensaje)=>{
 
-        actualizarEstado(
-            "Servidor desconectado."
-        );
-    }
+alert(mensaje);
+
+}
+);
+
+socket.on(
+"conexion-cerrada",
+()=>{
+
+actualizarEstado(
+"Esta conexión ya no está disponible."
+);
+
+}
+);
+
+socket.on(
+"ubicacion-eliminada",
+()=>{
+
+actualizarEstado(
+"El usuario dejó de compartir su ubicación."
+);
+
+}
+);
+
+socket.on(
+"connect",
+()=>{
+
+if(codigoActual){
+
+socket.emit(
+"unirse-conexion",
+codigoActual
+);
+
+}
+
+}
 );
 
 </script>
